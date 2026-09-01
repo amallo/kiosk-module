@@ -1,0 +1,23 @@
+{
+  "cxxNamespace": ["kioskmodule"],
+  "ios": {
+    "iosModuleName": "KioskModule"
+  },
+  "android": {
+    "androidNamespace": ["kioskmodule"],
+    "androidCxxLibName": "kioskmodule"
+  },
+  "autolinking": {
+    "KioskModule": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "KioskModule"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "KioskModule"
+      }
+    }
+  },
+  "ignorePaths": ["node_modules"]
+}
