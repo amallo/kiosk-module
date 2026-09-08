@@ -1,0 +1,7 @@
+[profile.default]
+# Affiche tous les tests (pas seulement les échecs) dans le résumé final
+status-level = "all"
+final-status-level = "flaky"
+# Affiche la sortie std(out/err) des tests qui échouent, immédiatement
+failure-output = "immediate-final"
+success-output = "never"
