@@ -41,6 +41,7 @@
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "test": "jest",
+    "test:rust": "cargo nextest run --workspace --manifest-path native/Cargo.toml",
     "release": "release-it --only-version",
     "web": "vite",
     "build:web": "vite build"

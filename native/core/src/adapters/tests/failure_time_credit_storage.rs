@@ -1,5 +1,9 @@
 #[cfg(test)]
-use std::cell::RefCell;
+use std::sync::{Arc, Mutex};
+
+
+#[cfg(test)]
+use async_trait::async_trait;
 
 #[cfg(test)]
 use crate::adapters::time_credit_storage::{TimeCreditStorage, StorageError, TimeCredit};
@@ -7,22 +11,23 @@ use crate::adapters::time_credit_storage::{TimeCreditStorage, StorageError, Time
 
 #[cfg(test)]
 pub struct FailureTimeCreditStorage{
-  grant_failure: RefCell<Option<StorageError>>
+  grant_failure: Arc<Mutex<Option<StorageError>>>
 }
 
 #[cfg(test)]
 impl FailureTimeCreditStorage {
   pub fn new() -> Self {
-        Self {grant_failure: RefCell::new(None)}
-    }
+        Self {grant_failure: Arc::new(Mutex::new(None))}
+  }
   pub fn grant_will_fail_with(&self, failure: StorageError){
-    *self.grant_failure.borrow_mut() = Some(failure);
+    *self.grant_failure.lock().unwrap() = Some(failure);
   }
 }
 
 #[cfg(test)]
+#[async_trait]
 impl TimeCreditStorage for FailureTimeCreditStorage{
-    fn grant(&self, _: TimeCredit) -> Result<(), StorageError>{
-        return Err(self.grant_failure.borrow().expect("FailureStorage: aucune erreur configurée, appelez save_credits_failure() d'abord"));
+    async fn grant(&self, _: TimeCredit) -> Result<(), StorageError>{
+        return Err(self.grant_failure.lock().unwrap().expect("FailureStorage: aucune erreur configurée, appelez save_credits_failure() d'abord"));
     }
 }

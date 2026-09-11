@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 #[derive(PartialEq)]
 pub struct TimeCredit{
   pub start: u64,
@@ -8,7 +10,11 @@ pub struct TimeCredit{
 pub enum StorageError{
   WriteError
 }
+
+
+
+#[async_trait]
 pub trait TimeCreditStorage{
-  fn grant(&self, credit: TimeCredit) -> Result<(), StorageError>;
+  async fn grant(&self, credit: TimeCredit) -> Result<(), StorageError>;
 }
 

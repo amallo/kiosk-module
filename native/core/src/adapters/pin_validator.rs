@@ -1,4 +1,7 @@
+use async_trait::async_trait;
 
+
+#[async_trait]
 pub trait PinValidator{
-  fn validate(&self, pin: u8) -> bool;
+  async fn validate(&self, pin: u8) -> bool;
 }

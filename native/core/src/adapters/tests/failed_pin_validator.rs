@@ -1,3 +1,7 @@
+
+#[cfg(test)]
+use async_trait::async_trait;
+
 #[cfg(test)]
 use crate::adapters::pin_validator::{PinValidator};
 
@@ -14,8 +18,9 @@ impl FailedPinValidator{
 }
 
 #[cfg(test)]
+#[async_trait]
 impl PinValidator for FailedPinValidator{
-    fn validate(&self, _pin: u8) -> bool {
-        return false
+    async fn validate(&self, _pin: u8) -> bool {
+        false
     }
 }
