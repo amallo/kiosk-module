@@ -1,6 +1,5 @@
 const path = require('path');
 const { getDefaultConfig } = require('@react-native/metro-config');
-const { withMetroConfig } = require('react-native-monorepo-config');
 
 const root = path.resolve(__dirname, '..');
 
@@ -10,10 +9,12 @@ const root = path.resolve(__dirname, '..');
  *
  * @type {import('metro-config').MetroConfig}
  */
-const config = withMetroConfig(getDefaultConfig(__dirname), {
-  root,
-  dirname: __dirname,
-  conditions: ['react-native-kiosk-module-source'],
-});
+module.exports = (async () => {
+  const { withMetroConfig } = await import('react-native-monorepo-config');
 
-module.exports = config;
+  return withMetroConfig(getDefaultConfig(__dirname), {
+    root,
+    dirname: __dirname,
+    conditions: ['react-native-kiosk-module-source'],
+  });
+})();
