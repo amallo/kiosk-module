@@ -26,13 +26,13 @@ impl<S,C, PV, DL> GrantTimeUseCase<S,C, PV, DL> where S: TimeCreditStorage, C: C
    pub async fn execute(&self, args: GrantTimeArgs)->Result<(), UseCaseError>{
     let now = self.clock.now();
     if !self.pin_validator.validate(args.pin).await{
-      return  Err(UseCaseError::PinValidationFaiure);
+      return  Err(UseCaseError::PinValidationFailure);
     }
 
     self.time_storage.grant(TimeCredit {
         start: now,
         end: now + args.duration.as_secs(),
-    }).await.map_err(|_| UseCaseError::StorageFailure)?;
+    }).await.map_err(|_| UseCaseError::TimeCreditStorageFailure)?;
 
     self.device_locker.unlock().await
     .map_err(|_| UseCaseError::LockDeviceFailure)?;
@@ -80,7 +80,7 @@ use super::*;
       let use_case = setup(Arc::clone(&time_credit_storage), Arc::clone(&clock), Arc::clone(&pin_validator), Arc::clone(&device_locker));
 
       let result = use_case.execute(GrantTimeArgs { duration: Duration::from_secs(12), pin: 123 });
-      assert_eq!(result.await, Err(UseCaseError::StorageFailure))
+      assert_eq!(result.await, Err(UseCaseError::TimeCreditStorageFailure))
     }
 
      #[tokio::test]
@@ -92,6 +92,6 @@ use super::*;
 
       let use_case = setup(Arc::clone(&time_credit_storage), Arc::clone(&clock), Arc::clone(&pin_validator), Arc::clone(&device_locker));
       let result = use_case.execute(GrantTimeArgs { duration: Duration::from_secs(12), pin:123 });
-      assert_eq!(result.await, Err(UseCaseError::PinValidationFaiure))
+      assert_eq!(result.await, Err(UseCaseError::PinValidationFailure))
     }
 }

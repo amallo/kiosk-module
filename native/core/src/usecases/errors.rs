@@ -1,6 +1,6 @@
 #[derive(PartialEq, Debug)]
 pub enum UseCaseError {
-    StorageFailure,
-    PinValidationFaiure,
+    TimeCreditStorageFailure,
+    PinValidationFailure,
     LockDeviceFailure
 }
