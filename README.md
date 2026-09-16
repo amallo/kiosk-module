@@ -1,39 +1,48 @@
-# react-native-kiosk-module
+# 📱 react-native-kiosk-module
 
-Kiosk module
+Un module React Native pour transformer un appareil en **borne kiosque** : verrouillage de l'écran et déverrouillage temporisé protégé par code PIN.
 
-## Installation
+L'idée est simple : un appareil (tablette, borne, terminal partagé...) reste verrouillé par défaut, et on lui accorde un **crédit de temps** déverrouillé uniquement après validation d'un code PIN. Une fois le temps écoulé, l'appareil se reverrouille automatiquement.
 
+## ✨ Fonctionnalités
 
-```sh
-npm install react-native-kiosk-module react-native-nitro-modules
+- 🔒 **Verrouillage de l'appareil** — bloque l'accès à l'appareil à la demande.
+- 🔓 **Octroi de temps** — déverrouille l'appareil pour une durée donnée, après vérification d'un code PIN.
+- 🧠 **Cœur métier natif en Rust** — la logique de verrouillage/déverrouillage est implémentée nativement pour un maximum de fiabilité et de performance, avec une couverture de tests dédiée.
+- ⚡ **Propulsé par [Nitro Modules](https://nitro.margelo.com/)** — une intégration native rapide et typée avec React Native.
+- 📱 **Multiplateforme** — support iOS et Android.
 
-> `react-native-nitro-modules` is required as this library relies on [Nitro Modules](https://nitro.margelo.com/).
-```
+## 🏗️ Architecture
 
+Le projet est organisé en deux grandes parties :
 
-## Usage
+- **`src/`** — l'interface TypeScript exposée aux applications React Native.
+- **`native/core/`** — le cœur métier écrit en Rust, structuré autour de cas d'usage (*use cases*) indépendants de toute plateforme :
+  - verrouillage de l'appareil,
+  - octroi de temps avec validation de PIN et suivi du crédit de temps restant.
 
+Cette séparation permet de garder la logique métier testable, robuste et réutilisable, indépendamment de la couche native iOS/Android.
 
-```js
-import { multiply } from 'react-native-kiosk-module';
+## 📦 Installation
 
-// ...
+Le module nécessite `react-native-nitro-modules` comme dépendance, puisqu'il s'appuie sur Nitro Modules pour le pont natif.
 
-const result = multiply(3, 7);
-```
+## 🛠️ Développement
 
+Le projet utilise Yarn workspaces avec une application d'exemple (`example/`) pour tester le module en conditions réelles, ainsi que Turbo pour l'orchestration des tâches.
 
-## Contributing
+Côté natif, le cœur Rust dispose de sa propre suite de tests (via `cargo nextest`), garantissant le bon comportement des cas d'usage indépendamment de l'intégration React Native.
 
-- [Development workflow](CONTRIBUTING.md#development-workflow)
-- [Sending a pull request](CONTRIBUTING.md#sending-a-pull-request)
-- [Code of conduct](CODE_OF_CONDUCT.md)
+## 🤝 Contribuer
 
-## License
+- [Workflow de développement](CONTRIBUTING.md#development-workflow)
+- [Envoyer une pull request](CONTRIBUTING.md#sending-a-pull-request)
+- [Code de conduite](CODE_OF_CONDUCT.md)
+
+## 📄 Licence
 
 MIT
 
 ---
 
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
+Réalisé avec [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
