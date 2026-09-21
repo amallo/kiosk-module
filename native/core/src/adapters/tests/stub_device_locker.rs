@@ -21,10 +21,11 @@ impl FailureDeviceLocker{
 #[cfg(test)]
 #[async_trait]
 impl DeviceLocker for FailureDeviceLocker{
-   async fn lock(&self)->Result<(), DeviceLockerError>{
+
+  async fn schedule_lock(&self, _at: u64)->Result<(), DeviceLockerError>{
     return Err(DeviceLockerError::Unknown)
   }
-  async fn unlock(&self)->Result<(), DeviceLockerError>{
+  async fn unlock_now(&self)->Result<(), DeviceLockerError>{
     return Err(DeviceLockerError::Unknown)
   }
 }

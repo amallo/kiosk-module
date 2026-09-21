@@ -10,7 +10,7 @@ pub enum DeviceLockerError{
 
 #[async_trait]
 pub trait DeviceLocker{
-  async fn lock(&self) -> Result<(), DeviceLockerError>;
-  async fn unlock(&self) -> Result<(), DeviceLockerError>;
+  async fn unlock_now(&self) -> Result<(), DeviceLockerError>;
+  async fn schedule_lock(&self, at: u64) -> Result<(), DeviceLockerError>;
 }
 

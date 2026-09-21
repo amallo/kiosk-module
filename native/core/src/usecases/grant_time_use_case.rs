@@ -28,13 +28,13 @@ impl<S,C, PV, DL> GrantTimeUseCase<S,C, PV, DL> where S: TimeCreditStorage, C: C
     if !self.pin_validator.validate(args.pin).await{
       return  Err(UseCaseError::PinValidationFailure);
     }
-
+    self.device_locker.unlock_now().await.map_err(|_| UseCaseError::LockDeviceFailure)?;
     self.time_storage.grant(TimeCredit {
         start: now,
         end: now + args.duration.as_secs(),
     }).await.map_err(|_| UseCaseError::TimeCreditStorageFailure)?;
 
-    self.device_locker.unlock().await
+    self.device_locker.schedule_lock(now + args.duration.as_secs()).await
     .map_err(|_| UseCaseError::LockDeviceFailure)?;
 
     Ok(())
@@ -43,7 +43,7 @@ impl<S,C, PV, DL> GrantTimeUseCase<S,C, PV, DL> where S: TimeCreditStorage, C: C
 
 #[cfg(test)]
 mod tests {
-use crate::adapters::{clock::MockClock, tests::{failed_pin_validator::FailedPinValidator, failure_time_credit_storage::FailureTimeCreditStorage, mock_time_credit_storage::MockTimeCreditStorage, spy_device_locker::SpyDeviceLocker, successfull_pin_validator::SuccessfullPinValidator}, time_credit_storage::StorageError};
+use crate::adapters::{clock::MockClock, tests::{failed_pin_validator::FailedPinValidator, failure_time_credit_storage::FailureTimeCreditStorage, spy_time_credit_storage::SpyTimeCreditStorage, spy_device_locker::SpyDeviceLocker, successfull_pin_validator::SuccessfullPinValidator}, time_credit_storage::StorageError};
 
 use super::*;
 
@@ -55,7 +55,7 @@ use super::*;
     #[tokio::test]
      async fn it_successfully_grants_time(){
 
-      let time_credit_storage = Arc::new(MockTimeCreditStorage::new());
+      let time_credit_storage = Arc::new(SpyTimeCreditStorage::new());
       let clock = Arc::new(MockClock::new(1788851260892));
       let pin_validator = Arc::new(SuccessfullPinValidator::new());
       let device_locker = Arc::new(SpyDeviceLocker::new());
@@ -64,7 +64,8 @@ use super::*;
       let result = use_case.execute(GrantTimeArgs { duration: Duration::from_secs(12), pin:123 }).await;
       assert_eq!(result, Ok(()));
       assert_eq!(time_credit_storage.grant_was_called_with(TimeCredit{start : 1788851260892, end: 1788851260892+12}), true);
-      assert_eq!(device_locker.unlock_was_called(), true)
+      assert_eq!(device_locker.schedule_lock_was_called_with(1788851260892 + 12), true);
+      assert_eq!(device_locker.unlock_now_was_called(), true);
     }
 
     #[tokio::test]
@@ -85,7 +86,7 @@ use super::*;
 
      #[tokio::test]
     async fn pin_validation_fails() {
-      let time_credit_storage = Arc::new(MockTimeCreditStorage::new());
+      let time_credit_storage = Arc::new(SpyTimeCreditStorage::new());
       let clock = Arc::new(MockClock::new(1788851260892));
       let pin_validator = Arc::new(FailedPinValidator::new());
       let device_locker = Arc::new(SpyDeviceLocker::new());

@@ -11,12 +11,12 @@ use crate::adapters::time_credit_storage::{TimeCreditStorage, StorageError, Time
 
 
 #[cfg(test)]
-pub struct FailureTimeCreditStorage{
+pub struct AlwaysGrantedTimeCreditStorage{
   grant_failure: Arc<Mutex<Option<StorageError>>>
 }
 
 #[cfg(test)]
-impl FailureTimeCreditStorage {
+impl AlwaysGrantedTimeCreditStorage {
   pub fn new() -> Self {
         Self {grant_failure: Arc::new(Mutex::new(None))}
   }
@@ -27,11 +27,11 @@ impl FailureTimeCreditStorage {
 
 #[cfg(test)]
 #[async_trait]
-impl TimeCreditStorage for FailureTimeCreditStorage{
+impl TimeCreditStorage for AlwaysGrantedTimeCreditStorage{
     async fn grant(&self, _: TimeCredit) -> Result<(), StorageError>{
-        return Err(self.grant_failure.lock().unwrap().expect("FailureStorage: aucune erreur configurée, appelez save_credits_failure() d'abord"));
+        return Ok(());
     }
-    async fn granted_until(&self) -> Result<GrantedTimeCredit, StorageError> {
-      return Err(StorageError::WriteError)
+    async fn granted_until(&self)-> Result<GrantedTimeCredit, StorageError>{
+      return Ok(GrantedTimeCredit::Until { time: 12 });
     }
 }
