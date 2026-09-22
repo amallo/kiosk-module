@@ -1,5 +1,5 @@
 use kiosk_core::usecases::errors::UseCaseError;
-use kiosk_core::usecases::lock_device_use_case::TimeCreditPermission;
+use kiosk_core::usecases::enforce_time_credit_use_case::TimeCreditPermission;
 use jni::sys::jint;
 
 // Codes de retour stables consommés côté Kotlin. On mappe sur des entiers plutôt

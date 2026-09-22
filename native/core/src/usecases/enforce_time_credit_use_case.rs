@@ -1,7 +1,7 @@
 use crate::{adapters::{clock::Clock, device_locker::DeviceLocker, time_credit_storage::{GrantedTimeCredit, TimeCreditStorage}}, usecases::errors::UseCaseError};
 use std::sync::Arc;
 
-pub struct LockDeviceUseCase<DL: DeviceLocker, TC: TimeCreditStorage, C: Clock>{
+pub struct EnforceTimeCreditUseCase<DL: DeviceLocker, TC: TimeCreditStorage, C: Clock>{
   device_locker: Arc<DL>,
   time_credit_storage: Arc<TC>,
   clock: Arc<C>,
@@ -15,9 +15,9 @@ pub enum TimeCreditPermission {
 
 fn lock_failure<E>(_: E) -> UseCaseError { UseCaseError::LockDeviceFailure }
 
-impl<DL, TC, C> LockDeviceUseCase<DL, TC,C> where DL: DeviceLocker, TC: TimeCreditStorage, C: Clock{
+impl<DL, TC, C> EnforceTimeCreditUseCase<DL, TC,C> where DL: DeviceLocker, TC: TimeCreditStorage, C: Clock{
   pub fn new(device_locker: Arc<DL>, time_credit_storage: Arc<TC>, clock: Arc<C>)-> Self{
-    LockDeviceUseCase{device_locker, time_credit_storage, clock}
+    EnforceTimeCreditUseCase{device_locker, time_credit_storage, clock}
   }
 
    pub async fn execute(&self)->Result<TimeCreditPermission, UseCaseError>{
@@ -45,8 +45,8 @@ use crate::adapters::{clock::{Clock, MockClock}, tests::{mock_time_credit_storag
 
 use super::*;
 
-    fn setup<DL: DeviceLocker, TC: TimeCreditStorage, C: Clock>(device_locker: Arc<DL>, time_credit_storage: Arc<TC>, clock: Arc<C>) -> LockDeviceUseCase<DL, TC, C> {
-       return LockDeviceUseCase::new( device_locker, time_credit_storage, clock);
+    fn setup<DL: DeviceLocker, TC: TimeCreditStorage, C: Clock>(device_locker: Arc<DL>, time_credit_storage: Arc<TC>, clock: Arc<C>) -> EnforceTimeCreditUseCase<DL, TC, C> {
+       return EnforceTimeCreditUseCase::new( device_locker, time_credit_storage, clock);
     }
 
 

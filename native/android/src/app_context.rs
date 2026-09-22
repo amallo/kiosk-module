@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use kiosk_core::usecases::grant_time_use_case::GrantTimeUseCase;
-use kiosk_core::usecases::lock_device_use_case::LockDeviceUseCase;
+use kiosk_core::usecases::enforce_time_credit_use_case::EnforceTimeCreditUseCase;
 
 use crate::adapters::file_time_credit_storage::FileTimeCreditStorage;
 use crate::adapters::logging_device_locker::LoggingDeviceLocker;
@@ -12,7 +12,7 @@ use crate::adapters::system_clock::SystemClock;
 /// définitive (config statique, stockage chiffré, ...) est traitée séparément.
 const DEFAULT_EXPECTED_PIN: u8 = 0;
 
-type ConcreteLockUseCase = LockDeviceUseCase<LoggingDeviceLocker, FileTimeCreditStorage, SystemClock>;
+type ConcreteLockUseCase = EnforceTimeCreditUseCase<LoggingDeviceLocker, FileTimeCreditStorage, SystemClock>;
 type ConcreteGrantUseCase =
     GrantTimeUseCase<FileTimeCreditStorage, SystemClock, SimplePinValidator, LoggingDeviceLocker>;
 
@@ -37,7 +37,7 @@ impl AppContext {
         let device_locker = Arc::new(LoggingDeviceLocker::new());
         let time_storage = Arc::new(FileTimeCreditStorage::new(storage_path));
 
-        let lock_use_case = LockDeviceUseCase::new(
+        let lock_use_case = EnforceTimeCreditUseCase::new(
             Arc::clone(&device_locker),
             Arc::clone(&time_storage),
             Arc::clone(&clock),
