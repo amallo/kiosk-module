@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Text, TextInput, View, StyleSheet } from 'react-native';
-import { grantTime } from 'react-native-kiosk-module';
+import { enforceTimeCredit, grantTime } from 'react-native-kiosk-module';
 
 // Codes retournés par le pont natif (voir native/android/src/jni_bridge.rs)
 const GRANT_CODE_LABELS: Record<number, string> = {
@@ -21,6 +21,13 @@ export default function App() {
   const [durationSecs, setDurationSecs] = useState('60');
   const [pin, setPin] = useState('0');
   const [grantResult, setGrantResult] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Au lancement de l'app, on ré-évalue le crédit de temps déjà accordé
+    // (ex: app tuée puis relancée) plutôt que d'attendre le prochain déclenchement
+    // AlarmManager (pas encore implémenté, voir native/android/ARCHITECTURE.md).
+    enforceTimeCredit();
+  }, []);
 
   return (
     <View style={styles.container}>

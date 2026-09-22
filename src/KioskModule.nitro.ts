@@ -5,4 +5,5 @@ export interface KioskModule extends HybridObject<{
   android: 'kotlin';
 }> {
   grantTime(durationSecs: number, pin: number): number;
+  enforceTimeCredit(): number;
 }
