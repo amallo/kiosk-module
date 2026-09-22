@@ -3,12 +3,25 @@
   "globalDependencies": [".nvmrc", ".yarnrc.yml"],
   "globalEnv": ["NODE_ENV"],
   "tasks": {
+    "//#build:rust:android": {
+      "inputs": [
+        "native/core/Cargo.toml",
+        "native/core/src",
+        "native/android/Cargo.toml",
+        "native/android/src",
+        "native/Cargo.toml",
+        "native/Cargo.lock"
+      ],
+      "outputs": ["android/src/main/jniLibs/**"]
+    },
     "build:android": {
+      "dependsOn": ["//#build:rust:android"],
       "env": ["ANDROID_HOME", "ORG_GRADLE_PROJECT_newArchEnabled"],
       "inputs": [
         "package.json",
         "android",
         "!android/build",
+        "!android/src/main/jniLibs",
         "src/*.ts",
         "src/*.tsx",
         "example/package.json",
