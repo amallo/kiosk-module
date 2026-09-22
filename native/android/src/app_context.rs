@@ -1,9 +1,12 @@
 use std::sync::Arc;
 
+use jni::objects::GlobalRef;
+use jni::JavaVM;
+
 use kiosk_core::usecases::grant_time_use_case::GrantTimeUseCase;
 use kiosk_core::usecases::enforce_time_credit_use_case::EnforceTimeCreditUseCase;
 
-use crate::adapters::file_time_credit_storage::FileTimeCreditStorage;
+use crate::adapters::shared_preferences_time_credit_storage::SharedPreferencesTimeCreditStorage;
 use crate::adapters::logging_device_locker::LoggingDeviceLocker;
 use crate::adapters::simple_pin_validator::SimplePinValidator;
 use crate::adapters::system_clock::SystemClock;
@@ -12,9 +15,14 @@ use crate::adapters::system_clock::SystemClock;
 /// définitive (config statique, stockage chiffré, ...) est traitée séparément.
 const DEFAULT_EXPECTED_PIN: u8 = 0;
 
-type ConcreteLockUseCase = EnforceTimeCreditUseCase<LoggingDeviceLocker, FileTimeCreditStorage, SystemClock>;
-type ConcreteGrantUseCase =
-    GrantTimeUseCase<FileTimeCreditStorage, SystemClock, SimplePinValidator, LoggingDeviceLocker>;
+type ConcreteLockUseCase =
+    EnforceTimeCreditUseCase<LoggingDeviceLocker, SharedPreferencesTimeCreditStorage, SystemClock>;
+type ConcreteGrantUseCase = GrantTimeUseCase<
+    SharedPreferencesTimeCreditStorage,
+    SystemClock,
+    SimplePinValidator,
+    LoggingDeviceLocker,
+>;
 
 /// Composition root : instancie une seule fois le runtime tokio et les use cases
 /// (avec leurs adapters concrets) pour toute la durée de vie du handle natif
@@ -26,7 +34,7 @@ pub struct AppContext {
 }
 
 impl AppContext {
-    pub fn new(storage_path: String) -> Self {
+    pub fn new(vm: JavaVM, storage_bridge: GlobalRef) -> Self {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
@@ -35,7 +43,7 @@ impl AppContext {
         let clock = Arc::new(SystemClock);
         let pin_validator = Arc::new(SimplePinValidator::new(DEFAULT_EXPECTED_PIN));
         let device_locker = Arc::new(LoggingDeviceLocker::new());
-        let time_storage = Arc::new(FileTimeCreditStorage::new(storage_path));
+        let time_storage = Arc::new(SharedPreferencesTimeCreditStorage::new(vm, storage_bridge));
 
         let lock_use_case = EnforceTimeCreditUseCase::new(
             Arc::clone(&device_locker),

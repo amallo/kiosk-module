@@ -18,7 +18,7 @@ internal object KioskNative {
         System.loadLibrary("kiosk_android")
     }
 
-    external fun nativeInit(storagePath: String): Long
+    external fun nativeInit(storageBridge: TimeCreditStorageBridge): Long
     external fun nativeLockDevice(handle: Long): Int
     external fun nativeGrantTime(handle: Long, durationSecs: Long, pin: Int): Int
     external fun nativeDestroy(handle: Long)

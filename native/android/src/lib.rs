@@ -8,7 +8,7 @@ use std::time::Duration;
 
 use app_context::AppContext;
 use kiosk_core::usecases::grant_time_use_case::GrantTimeArgs;
-use jni::objects::{JClass, JString};
+use jni::objects::{JClass, JObject};
 use jni::sys::{jint, jlong};
 use jni::JNIEnv;
 
@@ -24,21 +24,34 @@ fn init_logger_once() {
 
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_com_margelo_nitro_kioskmodule_KioskNative_nativeInit(
-    mut env: JNIEnv,
+    env: JNIEnv,
     _class: JClass,
-    storage_path: JString,
+    storage_bridge: JObject,
 ) -> jlong {
     init_logger_once();
 
-    let path: String = match env.get_string(&storage_path) {
-        Ok(s) => s.into(),
+    if storage_bridge.is_null() {
+        log::error!("nativeInit: storage_bridge argument is null");
+        return 0;
+    }
+
+    let vm = match env.get_java_vm() {
+        Ok(vm) => vm,
         Err(_) => {
-            log::error!("nativeInit: invalid storage_path argument");
+            log::error!("nativeInit: failed to obtain JavaVM handle");
             return 0;
         }
     };
 
-    let result = panic::catch_unwind(AssertUnwindSafe(|| AppContext::new(path)));
+    let bridge = match env.new_global_ref(&storage_bridge) {
+        Ok(global) => global,
+        Err(_) => {
+            log::error!("nativeInit: failed to create GlobalRef for storage_bridge");
+            return 0;
+        }
+    };
+
+    let result = panic::catch_unwind(AssertUnwindSafe(|| AppContext::new(vm, bridge)));
     match result {
         Ok(ctx) => Box::into_raw(Box::new(ctx)) as jlong,
         Err(_) => {

@@ -17,8 +17,8 @@ class KioskModule : HybridKioskModuleSpec() {
           val context = requireNotNull(NitroModules.applicationContext) {
             "NitroModules.applicationContext is not available yet"
           }
-          val storagePath = context.filesDir.absolutePath + "/kiosk_time_credit.json"
-          handle = KioskNative.nativeInit(storagePath)
+          val storageBridge = TimeCreditStorageBridge(context)
+          handle = KioskNative.nativeInit(storageBridge)
           nativeHandle = handle
         }
       }
