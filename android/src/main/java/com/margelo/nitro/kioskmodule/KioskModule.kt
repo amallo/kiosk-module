@@ -1,10 +1,50 @@
 package com.margelo.nitro.kioskmodule
-  
+
 import com.facebook.proguard.annotations.DoNotStrip
+import com.margelo.nitro.NitroModules
 
 @DoNotStrip
 class KioskModule : HybridKioskModuleSpec() {
+  @Volatile
+  private var nativeHandle: Long = 0
+
+  private fun ensureNativeHandle(): Long {
+    var handle = nativeHandle
+    if (handle == 0L) {
+      synchronized(this) {
+        handle = nativeHandle
+        if (handle == 0L) {
+          val context = requireNotNull(NitroModules.applicationContext) {
+            "NitroModules.applicationContext is not available yet"
+          }
+          val storagePath = context.filesDir.absolutePath + "/kiosk_time_credit.json"
+          handle = KioskNative.nativeInit(storagePath)
+          nativeHandle = handle
+        }
+      }
+    }
+    return handle
+  }
+
   override fun multiply(a: Double, b: Double): Double {
     return a * b
+  }
+
+  // TODO: exposer lockDevice/grantTime dans src/KioskModule.nitro.ts puis régénérer
+  // `yarn nitrogen` pour les rendre appelables depuis JS. Pour l'instant, ce sont
+  // de simples méthodes Kotlin utilisables pour valider le pipeline JNI natif.
+  fun lockDevice(): Int = KioskNative.nativeLockDevice(ensureNativeHandle())
+
+  fun grantTime(durationSecs: Long, pin: Int): Int =
+    KioskNative.nativeGrantTime(ensureNativeHandle(), durationSecs, pin)
+
+  override fun dispose() {
+    synchronized(this) {
+      if (nativeHandle != 0L) {
+        KioskNative.nativeDestroy(nativeHandle)
+        nativeHandle = 0
+      }
+    }
+    super.dispose()
   }
 }

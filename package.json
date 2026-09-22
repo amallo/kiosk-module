@@ -42,6 +42,7 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "test": "jest",
     "test:rust": "cargo nextest run --workspace --manifest-path native/Cargo.toml",
+    "build:rust:android": "cd native/android && cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -t x86 -o ../../android/src/main/jniLibs build --release",
     "release": "release-it --only-version",
     "web": "vite",
     "build:web": "vite build"
