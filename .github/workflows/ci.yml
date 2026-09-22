@@ -113,9 +113,15 @@ jobs:
 
       - name: Install Android NDK
         if: env.turbo_cache_hit != 1
-        run: |
-          /bin/bash -c "yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install 'ndk;27.1.12297006' > /dev/null"
-          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.1.12297006" >> $GITHUB_ENV
+        uses: nttld/setup-ndk@ed92fe6cadad69be94a966a7ee3271275e62f779 # v1.6.0
+        id: setup-ndk
+        with:
+          ndk-version: r27b
+          add-to-path: false
+
+      - name: Export ANDROID_NDK_HOME
+        if: env.turbo_cache_hit != 1
+        run: echo "ANDROID_NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }}" >> $GITHUB_ENV
 
       - name: Build Rust library for Android
         if: env.turbo_cache_hit != 1

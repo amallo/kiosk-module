@@ -4,6 +4,7 @@
   "globalEnv": ["NODE_ENV"],
   "tasks": {
     "//#build:rust:android": {
+      "env": ["ANDROID_NDK_HOME"],
       "inputs": [
         "native/core/Cargo.toml",
         "native/core/src",
