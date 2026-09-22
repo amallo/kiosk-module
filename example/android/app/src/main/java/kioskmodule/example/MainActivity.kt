@@ -1,4 +1,4 @@
-package kioskmoduleexample
+package com.kioskmoduleexample
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

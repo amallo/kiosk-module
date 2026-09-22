@@ -1,4 +1,4 @@
-package kioskmoduleexample
+package com.kioskmoduleexample
 
 import android.app.Application
 import com.facebook.react.PackageList
