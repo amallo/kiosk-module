@@ -26,17 +26,13 @@ class KioskModule : HybridKioskModuleSpec() {
     return handle
   }
 
-  override fun multiply(a: Double, b: Double): Double {
-    return a * b
-  }
-
-  // TODO: exposer lockDevice/grantTime dans src/KioskModule.nitro.ts puis régénérer
-  // `yarn nitrogen` pour les rendre appelables depuis JS. Pour l'instant, ce sont
-  // de simples méthodes Kotlin utilisables pour valider le pipeline JNI natif.
+  // TODO: exposer lockDevice dans src/KioskModule.nitro.ts puis régénérer
+  // `yarn nitrogen` pour la rendre appelable depuis JS. Pour l'instant, c'est
+  // une simple méthode Kotlin utilisable pour valider le pipeline JNI natif.
   fun lockDevice(): Int = KioskNative.nativeLockDevice(ensureNativeHandle())
 
-  fun grantTime(durationSecs: Long, pin: Int): Int =
-    KioskNative.nativeGrantTime(ensureNativeHandle(), durationSecs, pin)
+  override fun grantTime(durationSecs: Double, pin: Double): Double =
+    KioskNative.nativeGrantTime(ensureNativeHandle(), durationSecs.toLong(), pin.toInt()).toDouble()
 
   override fun dispose() {
     synchronized(this) {

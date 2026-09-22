@@ -4,6 +4,6 @@ import type { KioskModule } from './KioskModule.nitro';
 const KioskModuleHybridObject =
   NitroModules.createHybridObject<KioskModule>('KioskModule');
 
-export function multiply(a: number, b: number): number {
-  return KioskModuleHybridObject.multiply(a, b);
+export function grantTime(durationSecs: number, pin: number): number {
+  return KioskModuleHybridObject.grantTime(durationSecs, pin);
 }

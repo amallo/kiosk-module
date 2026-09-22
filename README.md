@@ -1,18 +1,18 @@
-# 📱 react-native-kiosk-module
+# react-native-kiosk-module
 
-Un module React Native pour transformer un appareil en **borne kiosque** : verrouillage de l'écran et déverrouillage temporisé protégé par code PIN.
+Module React Native pour transformer un appareil en borne kiosque : verrouillage de l'écran et déverrouillage temporisé protégé par code PIN.
 
-L'idée est simple : un appareil (tablette, borne, terminal partagé...) reste verrouillé par défaut, et on lui accorde un **crédit de temps** déverrouillé uniquement après validation d'un code PIN. Une fois le temps écoulé, l'appareil se reverrouille automatiquement.
+Un appareil (tablette, borne, terminal partagé...) reste verrouillé par défaut. On lui accorde un crédit de temps déverrouillé après validation d'un code PIN, puis il se reverrouille automatiquement une fois le temps écoulé.
 
-## ✨ Fonctionnalités
+## Fonctionnalités
 
-- 🔒 **Verrouillage de l'appareil** — bloque l'accès à l'appareil à la demande.
-- 🔓 **Octroi de temps** — déverrouille l'appareil pour une durée donnée, après vérification d'un code PIN.
-- 🧠 **Cœur métier natif en Rust** — la logique de verrouillage/déverrouillage est implémentée nativement pour un maximum de fiabilité et de performance, avec une couverture de tests dédiée.
-- ⚡ **Propulsé par [Nitro Modules](https://nitro.margelo.com/)** — une intégration native rapide et typée avec React Native.
-- 📱 **Multiplateforme** — support iOS et Android.
+- Verrouillage de l'appareil.
+- Octroi de temps avec vérification d'un code PIN.
+- Cœur métier écrit en Rust, avec sa propre suite de tests.
+- Pont natif via [Nitro Modules](https://nitro.margelo.com/).
+- iOS et Android.
 
-## 🏗️ Architecture
+## Architecture
 
 Le projet est organisé en deux grandes parties :
 
@@ -21,25 +21,27 @@ Le projet est organisé en deux grandes parties :
   - verrouillage de l'appareil,
   - octroi de temps avec validation de PIN et suivi du crédit de temps restant.
 
-Cette séparation permet de garder la logique métier testable, robuste et réutilisable, indépendamment de la couche native iOS/Android.
+Cette séparation garde la logique métier testable et indépendante de la couche native iOS/Android.
 
-## 📦 Installation
+## Installation
 
 Le module nécessite `react-native-nitro-modules` comme dépendance, puisqu'il s'appuie sur Nitro Modules pour le pont natif.
 
-## 🛠️ Développement
+## Développement
 
 Le projet utilise Yarn workspaces avec une application d'exemple (`example/`) pour tester le module en conditions réelles, ainsi que Turbo pour l'orchestration des tâches.
 
 Côté natif, le cœur Rust dispose de sa propre suite de tests (via `cargo nextest`), garantissant le bon comportement des cas d'usage indépendamment de l'intégration React Native.
 
-## 🤝 Contribuer
+Pour builder l'app example de bout en bout (y compris le crate Rust) ou ajouter un nouveau use case natif exposé en TS, voir le [guide de développement natif](docs/NATIVE_DEVELOPMENT.md).
+
+## Contribuer
 
 - [Workflow de développement](CONTRIBUTING.md#development-workflow)
 - [Envoyer une pull request](CONTRIBUTING.md#sending-a-pull-request)
 - [Code de conduite](CODE_OF_CONDUCT.md)
 
-## 📄 Licence
+## Licence
 
 MIT
 

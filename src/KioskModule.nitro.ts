@@ -4,5 +4,5 @@ export interface KioskModule extends HybridObject<{
   ios: 'swift';
   android: 'kotlin';
 }> {
-  multiply(a: number, b: number): number;
+  grantTime(durationSecs: number, pin: number): number;
 }

@@ -25,6 +25,8 @@ This project uses Nitro Modules. If you're not familiar with how Nitro works, ma
 
 You need to run [Nitrogen](https://nitro.margelo.com/docs/nitrogen) to generate the boilerplate code required for this project. The example app will not build without this step.
 
+This project also ships a native Rust core (`native/`) bridged to Android via JNI. Building the example app end-to-end requires an extra Rust build step, and adding a new native use case touches several layers (Rust → JNI → Kotlin → Nitro spec → JS). See [`docs/NATIVE_DEVELOPMENT.md`](docs/NATIVE_DEVELOPMENT.md) for the detailed, step-by-step workflow.
+
 Run **Nitrogen** in following cases:
 
 - When you make changes to any `*.nitro.ts` files.

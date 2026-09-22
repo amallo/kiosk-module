@@ -1,1 +1,1 @@
-export { multiply } from './multiply';
+export { grantTime } from './grantTime';
