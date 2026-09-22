@@ -27,6 +27,7 @@ impl<DL, TC, C> LockDeviceUseCase<DL, TC,C> where DL: DeviceLocker, TC: TimeCred
       match granted {
         GrantedTimeCredit::Until { time } if now < time => {
           self.device_locker.unlock_now().await.map_err(lock_failure)?;
+          self.device_locker.schedule_lock(time).await.map_err(lock_failure)?;
           Ok(TimeCreditPermission::Granted)
         }
         GrantedTimeCredit::Until { .. } | GrantedTimeCredit::Denied => {
@@ -62,6 +63,7 @@ use super::*;
       let result = use_case.execute().await;
       assert_eq!(result, Ok(TimeCreditPermission::Granted));
       assert_eq!(device_locker.unlock_now_was_called(), true);
+      assert_eq!(device_locker.schedule_lock_was_called_with(1788851260892 + 12), true);
     }
 
     #[tokio::test]
