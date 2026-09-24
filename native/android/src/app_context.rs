@@ -7,7 +7,7 @@ use kiosk_core::usecases::grant_time_use_case::GrantTimeUseCase;
 use kiosk_core::usecases::enforce_time_credit_use_case::EnforceTimeCreditUseCase;
 
 use crate::adapters::shared_preferences_time_credit_storage::SharedPreferencesTimeCreditStorage;
-use crate::adapters::logging_device_locker::LoggingDeviceLocker;
+use crate::adapters::lock_task_device_locker::LockTaskDeviceLocker;
 use crate::adapters::simple_pin_validator::SimplePinValidator;
 use crate::adapters::system_clock::SystemClock;
 
@@ -15,13 +15,18 @@ use crate::adapters::system_clock::SystemClock;
 /// définitive (config statique, stockage chiffré, ...) est traitée séparément.
 const DEFAULT_EXPECTED_PIN: u8 = 0;
 
-type ConcreteLockUseCase =
-    EnforceTimeCreditUseCase<LoggingDeviceLocker, SharedPreferencesTimeCreditStorage, SystemClock>;
+type ConcreteLockUseCase = EnforceTimeCreditUseCase<
+    LockTaskDeviceLocker,
+    SharedPreferencesTimeCreditStorage,
+    SystemClock,
+    LockTaskDeviceLocker,
+>;
 type ConcreteGrantUseCase = GrantTimeUseCase<
     SharedPreferencesTimeCreditStorage,
     SystemClock,
     SimplePinValidator,
-    LoggingDeviceLocker,
+    LockTaskDeviceLocker,
+    LockTaskDeviceLocker,
 >;
 
 /// Composition root : instancie une seule fois le runtime tokio et les use cases
@@ -34,7 +39,12 @@ pub struct AppContext {
 }
 
 impl AppContext {
-    pub fn new(vm: JavaVM, storage_bridge: GlobalRef) -> Self {
+    pub fn new(
+        storage_vm: JavaVM,
+        storage_bridge: GlobalRef,
+        lock_vm: JavaVM,
+        lock_bridge: GlobalRef,
+    ) -> Self {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
@@ -42,18 +52,21 @@ impl AppContext {
 
         let clock = Arc::new(SystemClock);
         let pin_validator = Arc::new(SimplePinValidator::new(DEFAULT_EXPECTED_PIN));
-        let device_locker = Arc::new(LoggingDeviceLocker::new());
-        let time_storage = Arc::new(SharedPreferencesTimeCreditStorage::new(vm, storage_bridge));
+        let device_locker = Arc::new(LockTaskDeviceLocker::new(lock_vm, lock_bridge));
+        let time_storage =
+            Arc::new(SharedPreferencesTimeCreditStorage::new(storage_vm, storage_bridge));
 
         let lock_use_case = EnforceTimeCreditUseCase::new(
             Arc::clone(&device_locker),
             Arc::clone(&time_storage),
             Arc::clone(&clock),
+            Arc::clone(&device_locker),
         );
         let grant_use_case = GrantTimeUseCase::new(
             Arc::clone(&time_storage),
             Arc::clone(&clock),
             pin_validator,
+            Arc::clone(&device_locker),
             device_locker,
         );
 

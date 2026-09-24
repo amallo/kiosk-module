@@ -3,3 +3,4 @@ pub  mod  clock;
 pub mod tests;
 pub mod pin_validator;
 pub mod device_locker;
+pub mod lock_state_notifier;

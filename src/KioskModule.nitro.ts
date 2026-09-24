@@ -6,4 +6,5 @@ export interface KioskModule extends HybridObject<{
 }> {
   grantTime(durationSecs: number, pin: number): number;
   enforceTimeCredit(): number;
+  onLockStateChanged: (locked: boolean) => void;
 }

@@ -27,6 +27,7 @@ pub extern "system" fn Java_com_margelo_nitro_kioskmodule_KioskNative_nativeInit
     env: JNIEnv,
     _class: JClass,
     storage_bridge: JObject,
+    lock_bridge: JObject,
 ) -> jlong {
     init_logger_once();
 
@@ -34,8 +35,19 @@ pub extern "system" fn Java_com_margelo_nitro_kioskmodule_KioskNative_nativeInit
         log::error!("nativeInit: storage_bridge argument is null");
         return 0;
     }
+    if lock_bridge.is_null() {
+        log::error!("nativeInit: lock_bridge argument is null");
+        return 0;
+    }
 
-    let vm = match env.get_java_vm() {
+    let storage_vm = match env.get_java_vm() {
+        Ok(vm) => vm,
+        Err(_) => {
+            log::error!("nativeInit: failed to obtain JavaVM handle");
+            return 0;
+        }
+    };
+    let lock_vm = match env.get_java_vm() {
         Ok(vm) => vm,
         Err(_) => {
             log::error!("nativeInit: failed to obtain JavaVM handle");
@@ -43,15 +55,24 @@ pub extern "system" fn Java_com_margelo_nitro_kioskmodule_KioskNative_nativeInit
         }
     };
 
-    let bridge = match env.new_global_ref(&storage_bridge) {
+    let storage_bridge = match env.new_global_ref(&storage_bridge) {
         Ok(global) => global,
         Err(_) => {
             log::error!("nativeInit: failed to create GlobalRef for storage_bridge");
             return 0;
         }
     };
+    let lock_bridge = match env.new_global_ref(&lock_bridge) {
+        Ok(global) => global,
+        Err(_) => {
+            log::error!("nativeInit: failed to create GlobalRef for lock_bridge");
+            return 0;
+        }
+    };
 
-    let result = panic::catch_unwind(AssertUnwindSafe(|| AppContext::new(vm, bridge)));
+    let result = panic::catch_unwind(AssertUnwindSafe(|| {
+        AppContext::new(storage_vm, storage_bridge, lock_vm, lock_bridge)
+    }));
     match result {
         Ok(ctx) => Box::into_raw(Box::new(ctx)) as jlong,
         Err(_) => {

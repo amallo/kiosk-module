@@ -28,4 +28,7 @@ impl DeviceLocker for FailureDeviceLocker{
   async fn unlock_now(&self)->Result<(), DeviceLockerError>{
     return Err(DeviceLockerError::Unknown)
   }
+  async fn lock_now(&self)->Result<(), DeviceLockerError>{
+    return Err(DeviceLockerError::Unknown)
+  }
 }

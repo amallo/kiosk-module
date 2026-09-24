@@ -20,6 +20,11 @@ impl DeviceLocker for LoggingDeviceLocker {
         Ok(())
     }
 
+    async fn lock_now(&self) -> Result<(), DeviceLockerError> {
+        log::info!("[LoggingDeviceLocker] lock_now called");
+        Ok(())
+    }
+
     async fn schedule_lock(&self, at: u64) -> Result<(), DeviceLockerError> {
         log::info!("[LoggingDeviceLocker] schedule_lock called (at={at})");
         Ok(())

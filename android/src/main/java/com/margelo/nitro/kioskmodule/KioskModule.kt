@@ -18,13 +18,18 @@ class KioskModule : HybridKioskModuleSpec() {
             "NitroModules.applicationContext is not available yet"
           }
           val storageBridge = TimeCreditStorageBridge(context)
-          handle = KioskNative.nativeInit(storageBridge)
+          val lockBridge = LockTaskBridge()
+          handle = KioskNative.nativeInit(storageBridge, lockBridge)
           nativeHandle = handle
         }
       }
     }
     return handle
   }
+
+  override var onLockStateChanged: (Boolean) -> Unit
+    get() = LockStateEmitter.listener ?: {}
+    set(value) { LockStateEmitter.listener = value }
 
   override fun enforceTimeCredit(): Double =
     KioskNative.nativeLockDevice(ensureNativeHandle()).toDouble()

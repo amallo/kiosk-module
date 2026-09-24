@@ -15,6 +15,7 @@ use crate::adapters::device_locker::DeviceLockerError;
 pub struct SpyDeviceLocker{
   lock_at_args: Arc<Mutex<u64>>,
   unlock_was_called: Arc<Mutex<bool>>,
+  lock_now_was_called: Arc<Mutex<bool>>,
 }
 
 
@@ -23,7 +24,8 @@ impl SpyDeviceLocker{
   pub fn new()->Self{
     return SpyDeviceLocker{
       lock_at_args: Arc::new(Mutex::new(0)),
-      unlock_was_called: Arc::new(Mutex::new(false))
+      unlock_was_called: Arc::new(Mutex::new(false)),
+      lock_now_was_called: Arc::new(Mutex::new(false)),
     }
   }
   pub fn schedule_lock_was_called_with(&self, at: u64)->bool{
@@ -31,6 +33,9 @@ impl SpyDeviceLocker{
   }
   pub fn unlock_now_was_called(&self)->bool{
     return *self.unlock_was_called.lock().unwrap();
+  }
+  pub fn lock_now_was_called(&self)->bool{
+    return *self.lock_now_was_called.lock().unwrap();
   }
 }
 
@@ -46,6 +51,12 @@ impl DeviceLocker for SpyDeviceLocker{
 
   async fn unlock_now(&self)->Result<(), DeviceLockerError>{
     let mut args = self.unlock_was_called.lock().unwrap();
+    *args = true;
+    return Ok(())
+  }
+
+  async fn lock_now(&self)->Result<(), DeviceLockerError>{
+    let mut args = self.lock_now_was_called.lock().unwrap();
     *args = true;
     return Ok(())
   }
